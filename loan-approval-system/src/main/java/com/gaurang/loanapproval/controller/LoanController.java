@@ -1,6 +1,7 @@
 package com.gaurang.loanapproval.controller;
 
 import com.gaurang.loanapproval.entity.LoanApplication;
+import com.gaurang.loanapproval.enums.ApplicationStatus;
 import com.gaurang.loanapproval.service.LoanService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +40,19 @@ public class LoanController {
                 .getAuthentication().getPrincipal();
 
         return loanService.getUserLoans(email);
+    }
+    @PostMapping("/admin/approve/{id}")
+    public String approveLoan(@PathVariable Long id) {
+        return loanService.updateLoanStatus(id, ApplicationStatus.APPROVED);
+    }
+
+    @PostMapping("/admin/reject/{id}")
+    public String rejectLoan(@PathVariable Long id) {
+        return loanService.updateLoanStatus(id, ApplicationStatus.REJECTED);
+    }
+
+    @GetMapping("/admin/all")
+    public List<LoanApplication> getAllApplications() {
+        return loanService.getAllApplications();
     }
 }

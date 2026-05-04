@@ -72,4 +72,20 @@ public class LoanService {
 
         return loanRepo.findByUser(user);
     }
+    public List<LoanApplication> getAllApplications() {
+        return loanRepo.findAll();
+
+    }
+    public String updateLoanStatus(Long id, ApplicationStatus status) {
+
+        LoanApplication loan = loanRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        loan.setStatus(status);
+
+        loanRepo.save(loan);
+
+        return "Loan " + status;
+    }
+    
 }
