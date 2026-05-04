@@ -1,0 +1,11 @@
+package com.gaurang.loanapproval.repository;
+
+import com.gaurang.loanapproval.entity.LoanApplication;
+import com.gaurang.loanapproval.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface LoanApplicationRepository extends JpaRepository<LoanApplication, Long> {
+    List<LoanApplication> findByUser(User user);
+}

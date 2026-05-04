@@ -1,10 +1,15 @@
 package com.gaurang.loanapproval.entity;
 
-import com.gaurang.loanapproval.enums.Status;
+import com.gaurang.loanapproval.enums.ApplicationStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 public class LoanApplication {
 
@@ -13,7 +18,6 @@ public class LoanApplication {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     private Double loanAmount;
@@ -23,7 +27,7 @@ public class LoanApplication {
     private Double existingDebt;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ApplicationStatus status;
 
     private LocalDateTime createdAt;
 }

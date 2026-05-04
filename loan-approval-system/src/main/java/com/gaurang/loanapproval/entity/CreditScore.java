@@ -4,6 +4,11 @@ import com.gaurang.loanapproval.enums.RiskLevel;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 
 @Entity
 public class CreditScore {

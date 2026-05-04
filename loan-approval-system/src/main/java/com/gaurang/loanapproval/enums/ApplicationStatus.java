@@ -1,6 +1,6 @@
 package com.gaurang.loanapproval.enums;
 
-public enum Status {
+public enum ApplicationStatus {
     PENDING,
     APPROVED,
     REJECTED
