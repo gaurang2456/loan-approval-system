@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // signup/login allowed
+                        .requestMatchers("/loan/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()           // everything else protected
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
