@@ -7,6 +7,7 @@ import com.gaurang.loanapproval.enums.ApplicationStatus;
 import com.gaurang.loanapproval.repository.LoanApplicationRepository;
 import com.gaurang.loanapproval.repository.LoanRepository;
 import com.gaurang.loanapproval.repository.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -69,6 +70,7 @@ public class LoanService {
     }
 
     //  Get User Loans
+    @Cacheable(value = "loans", key = "#email")
     public List<LoanApplication> getUserLoans(String email) {
 
         User user = userRepo.findByEmail(email)
@@ -120,5 +122,5 @@ public class LoanService {
         return (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
                 (Math.pow(1 + monthlyRate, months) - 1);
     }
-    
+
 }
