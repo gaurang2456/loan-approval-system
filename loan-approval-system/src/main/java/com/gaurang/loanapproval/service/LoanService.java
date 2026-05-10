@@ -7,6 +7,7 @@ import com.gaurang.loanapproval.enums.ApplicationStatus;
 import com.gaurang.loanapproval.repository.LoanApplicationRepository;
 import com.gaurang.loanapproval.repository.LoanRepository;
 import com.gaurang.loanapproval.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class LoanService {
     }
 
     //  Apply Loan
+    @CacheEvict(value = "loans", key = "#email")
     public String applyLoan(String email,
                             Double amount,
                             Integer tenure,

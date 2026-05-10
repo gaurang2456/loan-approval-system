@@ -25,14 +25,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // signup/login allowed
-                        .requestMatchers("/loan/admin/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated()           // everything else protected
+
+                        //  Public routes FIRST
+                        .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        //  Admin routes
+                        .requestMatchers("/loan/admin/**")
+                        .hasAuthority("ADMIN")
+
+                        //  Remaining routes need auth
+                        .anyRequest()
+                        .authenticated()
                 )
+
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

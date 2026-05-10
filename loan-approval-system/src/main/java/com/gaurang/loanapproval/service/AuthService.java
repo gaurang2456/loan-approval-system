@@ -3,6 +3,8 @@ package com.gaurang.loanapproval.service;
 import com.gaurang.loanapproval.config.JwtUtil;
 import com.gaurang.loanapproval.entity.User;
 import com.gaurang.loanapproval.enums.Role;
+import com.gaurang.loanapproval.exception.InvalidPasswordException;
+import com.gaurang.loanapproval.exception.UserNotFoundException;
 import com.gaurang.loanapproval.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class AuthService {
         User user = new User();
         user.setName(name);
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password)); // 🔐 hashing
+        user.setPassword(passwordEncoder.encode(password)); //  hashing
         user.setRole(Role.USER);
         user.setCreatedAt(LocalDateTime.now());
 
@@ -44,12 +46,12 @@ public class AuthService {
     public String login(String email, String password) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new InvalidPasswordException("Invalid password");
         }
 
-        return jwtUtil.generateToken(email, user.getRole().name()); //  return token
+        return jwtUtil.generateToken(user.getEmail(), user.getRole().name()); //  return token
     }
 }
