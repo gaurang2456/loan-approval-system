@@ -1,8 +1,11 @@
 package com.gaurang.loanapproval.controller;
 
+import com.gaurang.loanapproval.dto.LoanRequestDTO;
+import com.gaurang.loanapproval.dto.LoanResponseDTO;
 import com.gaurang.loanapproval.entity.LoanApplication;
 import com.gaurang.loanapproval.enums.ApplicationStatus;
 import com.gaurang.loanapproval.service.LoanService;
+import jakarta.validation.Valid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,21 +21,24 @@ public class LoanController {
         this.loanService = loanService;
     }
 
-    // ✅ Apply Loan
+    //  Apply Loan
     @PostMapping("/apply")
-    public String applyLoan(@RequestParam Double amount,
-                            @RequestParam Integer tenure,
-                            @RequestParam Double income,
-                            @RequestParam String employmentType,
-                            @RequestParam Double existingDebt) {
+    public LoanResponseDTO applyLoan(@Valid @RequestBody LoanRequestDTO request) {
 
         String email = (String) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
 
-        return loanService.applyLoan(email, amount, tenure, income, employmentType, existingDebt);
+        return loanService.applyLoan(
+                email,
+                request.getAmount(),
+                request.getTenure(),
+                request.getIncome(),
+                request.getEmploymentType(),
+                request.getExistingDebt()
+        );
     }
 
-    // ✅ Get My Loans
+    //  Get My Loans
     @GetMapping("/my-loans")
     public List<LoanApplication> getMyLoans() {
 

@@ -1,9 +1,11 @@
 package com.gaurang.loanapproval.service;
 
+import com.gaurang.loanapproval.dto.LoanResponseDTO;
 import com.gaurang.loanapproval.entity.Loan;
 import com.gaurang.loanapproval.entity.LoanApplication;
 import com.gaurang.loanapproval.entity.User;
 import com.gaurang.loanapproval.enums.ApplicationStatus;
+import com.gaurang.loanapproval.exception.UserNotFoundException;
 import com.gaurang.loanapproval.repository.LoanApplicationRepository;
 import com.gaurang.loanapproval.repository.LoanRepository;
 import com.gaurang.loanapproval.repository.UserRepository;
@@ -31,44 +33,68 @@ public class LoanService {
 
     //  Apply Loan
     @CacheEvict(value = "loans", key = "#email")
-    public String applyLoan(String email,
-                            Double amount,
-                            Integer tenure,
-                            Double income,
-                            String employmentType,
-                            Double existingDebt) {
+    public LoanResponseDTO applyLoan(
+            String email,
+            Double amount,
+            Integer tenure,
+            Double income,
+            String employmentType,
+            Double existingDebt
+    ) {
 
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
 
+        // Calculate credit score
+        var creditScore = creditService.calculateScore(
+                user,
+                income,
+                existingDebt
+        );
 
-        //  Step 1: Calculate credit score
-        var creditScore = creditService.calculateScore(user, income, existingDebt);
-
-        //  Step 2: Decide approval
+        // Decide approval status
         ApplicationStatus status;
 
-        if (creditScore.getRiskLevel() == com.gaurang.loanapproval.enums.RiskLevel.LOW) {
+        if (creditScore.getRiskLevel() ==
+                com.gaurang.loanapproval.enums.RiskLevel.LOW) {
+
             status = ApplicationStatus.APPROVED;
-        } else if (creditScore.getRiskLevel() == com.gaurang.loanapproval.enums.RiskLevel.HIGH) {
-            status = ApplicationStatus.PENDING; // manual review
+
+        } else if (creditScore.getRiskLevel() ==
+                com.gaurang.loanapproval.enums.RiskLevel.HIGH) {
+
+            status = ApplicationStatus.PENDING;
+
         } else {
+
             status = ApplicationStatus.REJECTED;
         }
 
+        // Create loan application
         LoanApplication loan = new LoanApplication();
+
         loan.setUser(user);
         loan.setLoanAmount(amount);
         loan.setTenureMonths(tenure);
         loan.setIncome(income);
         loan.setEmploymentType(employmentType);
         loan.setExistingDebt(existingDebt);
-        loan.setStatus(ApplicationStatus.PENDING);
+
+        loan.setStatus(status);
+
         loan.setCreatedAt(LocalDateTime.now());
 
-        loanRepo.save(loan);
+        LoanApplication savedLoan =
+                loanRepo.save(loan);
 
-        return "Loan " + status;
+        // Return DTO response
+        return new LoanResponseDTO(
+                "Loan application submitted successfully",
+                savedLoan.getId(),
+                savedLoan.getStatus().name(),
+                creditScore.getRiskLevel().name()
+        );
     }
 
     //  Get User Loans

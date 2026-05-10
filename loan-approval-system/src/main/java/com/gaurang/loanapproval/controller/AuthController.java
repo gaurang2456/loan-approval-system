@@ -1,7 +1,11 @@
 package com.gaurang.loanapproval.controller;
 
+import com.gaurang.loanapproval.dto.LoginRequestDTO;
 import com.gaurang.loanapproval.dto.LoginResponseDTO;
+import com.gaurang.loanapproval.dto.SignupRequestDTO;
+import com.gaurang.loanapproval.dto.SignupResponseDTO;
 import com.gaurang.loanapproval.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,17 +19,28 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestParam String name,
-                         @RequestParam String email,
-                         @RequestParam String password) {
+    public SignupResponseDTO signup(
+            @Valid @RequestBody SignupRequestDTO request) {
 
-        return authService.register(name, email, password);
+        authService.register(
+                request.getName(),
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        return new SignupResponseDTO(
+                "User registered successfully"
+        );
     }
-    @PostMapping("/login")
-    public LoginResponseDTO login(@RequestParam String email,
-                        @RequestParam String password) {
 
-        String token = authService.login(email, password);
+    @PostMapping("/login")
+    public LoginResponseDTO login(
+            @Valid @RequestBody LoginRequestDTO request) {
+
+        String token = authService.login(
+                request.getEmail(),
+                request.getPassword()
+        );
 
         return new LoginResponseDTO(token);
     }
