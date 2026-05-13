@@ -23,6 +23,32 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String generateRefreshToken(String email) {
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)
+                ) // 7 days
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public boolean isTokenValid(String token) {
+
+        try {
+
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public String extractEmail(String token) {
         return Jwts.parserBuilder()

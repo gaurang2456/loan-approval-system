@@ -1,9 +1,6 @@
 package com.gaurang.loanapproval.controller;
 
-import com.gaurang.loanapproval.dto.LoginRequestDTO;
-import com.gaurang.loanapproval.dto.LoginResponseDTO;
-import com.gaurang.loanapproval.dto.SignupRequestDTO;
-import com.gaurang.loanapproval.dto.SignupResponseDTO;
+import com.gaurang.loanapproval.dto.*;
 import com.gaurang.loanapproval.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -37,11 +34,17 @@ public class AuthController {
     public LoginResponseDTO login(
             @Valid @RequestBody LoginRequestDTO request) {
 
-        String token = authService.login(
+        return authService.login(
                 request.getEmail(),
                 request.getPassword()
         );
+    }
+    @PostMapping("/refresh")
+    public RefreshTokenResponseDTO refreshToken(
+            @RequestBody RefreshTokenRequestDTO request) {
 
-        return new LoginResponseDTO(token);
+        return authService.refreshToken(
+                request.getRefreshToken()
+        );
     }
 }

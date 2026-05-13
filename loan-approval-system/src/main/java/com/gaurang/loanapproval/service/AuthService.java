@@ -1,6 +1,8 @@
 package com.gaurang.loanapproval.service;
 
 import com.gaurang.loanapproval.config.JwtUtil;
+import com.gaurang.loanapproval.dto.LoginResponseDTO;
+import com.gaurang.loanapproval.dto.RefreshTokenResponseDTO;
 import com.gaurang.loanapproval.entity.User;
 import com.gaurang.loanapproval.enums.Role;
 import com.gaurang.loanapproval.exception.InvalidPasswordException;
@@ -43,7 +45,7 @@ public class AuthService {
 
         return "User registered successfully";
     }
-    public String login(String email, String password) {
+    public LoginResponseDTO login(String email, String password) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -52,6 +54,36 @@ public class AuthService {
             throw new InvalidPasswordException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getEmail(), user.getRole().name()); //  return token
+        String accessToken = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        String refreshToken = jwtUtil.generateRefreshToken(
+                user.getEmail()
+        );
+
+        return new LoginResponseDTO(
+                accessToken,
+                refreshToken
+        );
+    }
+    public RefreshTokenResponseDTO refreshToken(String refreshToken) {
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String email = jwtUtil.extractEmail(refreshToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String newAccessToken = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return new RefreshTokenResponseDTO(newAccessToken);
     }
 }
