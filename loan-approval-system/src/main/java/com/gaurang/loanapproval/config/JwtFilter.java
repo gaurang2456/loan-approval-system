@@ -47,13 +47,11 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             String email = jwtUtil.extractEmail(token);
 
-            //  Mark user as authenticated
-            SecurityContextHolder.getContext().setAuthentication(
-                    new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                            email, null, java.util.Collections.emptyList()
-                    )
-            );
+
             String role = jwtUtil.extractRole(token);
+
+            System.out.println("EMAIL = " + email);
+            System.out.println("ROLE = " + role);
 
             var authorities = List.of(new SimpleGrantedAuthority(role));
 
